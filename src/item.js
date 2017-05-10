@@ -1,6 +1,7 @@
 MM.Item = function() {
 	this._parent = null;
 	this._children = [];
+	this._arrowlinks = [];
 	this._collapsed = false;
 
 	this._layout = null;
@@ -77,6 +78,9 @@ MM.Item.prototype.toJSON = function() {
 	if (this._children.length) {
 		data.children = this._children.map(function(child) { return child.toJSON(); });
 	}
+	if (this._arrowlinks.length) {
+		data.arrowlink = this._arrowlinks.map(function(child) { return child.toJSON(); });
+	}
 
 	return data;
 }
@@ -100,6 +104,9 @@ MM.Item.prototype.fromJSON = function(data) {
 
 	(data.children || []).forEach(function(child) {
 		this.insertChild(MM.Item.fromJSON(child));
+	}, this);
+	(data.arrowlink || []).forEach(function(child) {
+		this.insertArrowlink(MM.Arrowlink.fromJSON(child));
 	}, this);
 
 	return this;
@@ -586,4 +593,66 @@ MM.Item.prototype._findLinks = function(node) {
 			break;
 		}
 	}
+}
+
+
+MM.Item.prototype._getById = function(id) {
+    var found = null;
+    this._children.forEach(function(child) {
+        var x = child._getById(id);
+	if (x) found = x;
+    });
+    if (found) return found;
+    if (this.id == id) return this;
+    else return null;
+}
+MM.Item.prototype.getById = function(id) {
+    var map = this.getMap();
+    return map.getRoot()._getById(id);
+};
+
+
+MM.Item.prototype.insertArrowlink = function(arrowlink, index) {
+	var newArrowlink = false;
+	if (!arrowlink) { 
+	    arrowlink = new MM.Arrowlink();
+	    newArrowlink = true;
+	}
+	if (arguments.length < 2) { index = this._arrowlinks.length; }
+
+    this._arrowlinks.push(arrowlink);
+    return ;
+}
+
+MM.Item.prototype.getArrowlinks = function() {
+    return this._arrowlinks;
+}
+
+MM.Arrowlink = function() {
+    this._id = MM.generateId();
+    this._ownerid = null;
+    this._destination = null;
+    return this;
+}
+MM.Arrowlink.fromJSON = function(data) {
+	return new this().fromJSON(data);
+}
+MM.Arrowlink.prototype.fromJSON = function(data) {
+    this._id = data.id;
+    this._owerid = data.ownerid;
+    this._destination = data.destination;
+    return this;
+}
+MM.Arrowlink.prototype.getId = function() {
+	return this._id;
+}
+MM.Arrowlink.prototype.getOwerId = function() {
+	return this._owerid;
+}
+MM.Arrowlink.prototype.getDestination = function() {
+	return this._destination;
+}
+MM.Arrowlink.prototype.setValue = function(data) {
+    for (k in data)
+	this[k] = data[k];
 }

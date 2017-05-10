@@ -90,7 +90,9 @@ MM.Layout.Tree._drawLines = function(item, side) {
 	this._anchorToggle(item, x, dom.content.offsetHeight, "bottom");
 
 	var children = item.getChildren();
-	if (children.length == 0 || item.isCollapsed()) { return; }
+	if (children.length == 0 || item.isCollapsed()) { 
+
+        } else {
 
 	var ctx = canvas.getContext("2d");
 	ctx.strokeStyle = item.getColor();
@@ -114,6 +116,58 @@ MM.Layout.Tree._drawLines = function(item, side) {
 		ctx.lineTo(anchor, y);
 	}
 	ctx.stroke();
+
+        }
+
+
+	var arrowlinks = item.getArrowlinks();
+	if (arrowlinks.length == 0 || item.isCollapsed()) { 
+
+        } else {
+
+	var ctx = canvas.getContext("2d");
+	ctx.strokeStyle = item.getColor();
+
+	    console.log(item);
+	    console.log(item.getShape());
+	var y1 = item.getShape().getVerticalAnchor(item);
+        var side = "";
+	if (side == "left") {
+		var x1 = dom.content.offsetLeft - 0.5;
+	} else {
+		var x1 = dom.content.offsetWidth + dom.content.offsetLeft + 0.5;
+	}
+
+	ctx.beginPath();
+console.log(x1, y1);
+	ctx.moveTo(x1, y1);
+
+	    var child = item.getById(arrowlinks[0].destination);
+	    if (child == null) {
+console.log("not found", arrowlinks[0].destination);
+            }   
+//	    if (!child.getShape()) { child.setShape(null); }
+	    console.log(child, child.getShape());
+	    var y2 = 0;//child.getShape().getVerticalAnchor(child) + child.getDOM().node.offsetTop;
+	    var x2 = 0;//this._getChildAnchor(child, side);
+	ctx.lineTo(x2, y2)
+
+if (0) {
+	for (var i=0; i<arrowlinks.length; i++) {
+		var c = arrowlinks[i];
+		var y2 = c.getShape().getVerticalAnchor(c) + c.getDOM().node.offsetTop;
+
+
+		ctx.moveTo(x, y - R);
+		ctx.arcTo(x, y, anchor, y, R);
+		ctx.lineTo(anchor, y);
+	}
+}
+	ctx.stroke();
+
+
+        }
+
 }
 
 MM.Layout.Tree.Left = MM.Layout.Tree.create("left", "tree-left", "Left");
